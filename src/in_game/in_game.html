@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wizard Overlay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+</head>
+<body class="in-game">
+  <main id="quest_overlay">
+    <div id="tracking">
+      <div id="world_selector_container">
+        <button id="selected_world" class="world_card">
+          <img id="selected_world_img" />
+          <p id="selected_world_text"></p>
+        </button>
+        <div id="world_options"></div>
+      </div>
+      <button id="closeButton" class="window-control window-control-close" >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <h1 id="quest_name"></h1>
+    <div id="nav">
+       <button id="previous_quest_button" class="spell-btn">
+        <svg class="spell-icon left" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15,6 9,12 15,18" />
+        </svg>
+       </button>
+       <p id="quest_progress_text"><span id="current_quest_number"></span>/<span id="total_quest_number"></span></p>
+      <progress id="world_quest_progress" value="0" max="1">
+        <p><span id="current_quest_number"></span>/<span id="total_quest_number"></span></p>
+      </progress>
+       <button id="next_quest_button" class="spell-btn">
+        <svg class="spell-icon right" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 6 L15 12 L9 18" />
+        </svg>
+       </button>
+    </div>
+  </main>
+</body>
+</html>

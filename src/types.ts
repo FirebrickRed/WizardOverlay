@@ -1,20 +1,20 @@
 
 export interface Quest {
-  quest_id: string;
+  slug: string;
   display_name: string;
-  prequest?: string | null;
-  given_by?: string;
-  location?: string;
-  goals?: any[];
-  hand_in?: string;
-  reward?: object;
+  world_slug: string;
+  story_order: number;
+  quest_giver?: string;
+  giver_location?: string;
+  turn_in_to?: string;
+  objectives?: object;
+  rewards?: object;
 }
 
 export interface World {
-  world_id: string;
+  slug: string;
   display_name: string;
-  story_quests: Quest[];
-  side_quests: Quest[];
+  story_order: number;
 }
 
 export interface WorldQuestData {

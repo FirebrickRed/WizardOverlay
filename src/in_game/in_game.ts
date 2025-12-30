@@ -7,6 +7,8 @@ import { Quest, World } from "../types";
 // The window displayed in-game while a game is running.
 class InGame extends AppWindow {
   private static _instance: InGame;
+  private _worldData: World[];
+  private _questData: Quest[];
 
   private _quest_overlay_element: HTMLElement;
 
@@ -25,7 +27,6 @@ class InGame extends AppWindow {
 
   private _nav_element: HTMLElement;
 
-  private _worldData: World[];
   private _selected_world: World;
   private _story_quests: Quest[];
   private _selected_quest_number: number;
@@ -38,8 +39,9 @@ class InGame extends AppWindow {
 
   private constructor() {
     super(kWindowNames.inGame);
-
-    this._worldData = JSON.parse(localStorage.getItem('worldData'));
+    
+    this._worldData = JSON.parse(localStorage.getItem('worlds') || '[]');
+    this._questData = JSON.parse(localStorage.getItem('quests') || '[]');
 
     this._quest_overlay_element = document.getElementById('quest_overlay');
 
@@ -57,6 +59,10 @@ class InGame extends AppWindow {
     this._total_quest_number_element = document.getElementById('total_quest_number');
 
     this._nav_element = document.getElementById('nav');
+  }
+
+  private getQuestsForWorld(worldSlug: string) {
+    return this._questData.filter(q => q.world_slug === worldSlug);
   }
 
   public static instance() {
@@ -106,7 +112,7 @@ class InGame extends AppWindow {
   private buildWorldOptions(): void {
     this._world_options_element.innerHTML = '';
 
-    const selectedIndex = this._worldData.findIndex(w => w.world_id === this._selected_world.world_id);
+    const selectedIndex = this._worldData.findIndex(w => w.slug === this._selected_world.slug);
     const otherWorlds = [
       ...this._worldData.slice(0 , selectedIndex),
       ...this._worldData.slice(selectedIndex + 1)
@@ -117,7 +123,7 @@ class InGame extends AppWindow {
       button.className = 'world_card world_option';
 
       const img = document.createElement('img');
-      img.src = `./img/world/${world.world_id}.png`;
+      img.src = `./img/world/${world.slug}.png`;
       img.alt = world.display_name;
 
       const text = document.createElement('p');
@@ -128,7 +134,7 @@ class InGame extends AppWindow {
 
       button.addEventListener('click', event => {
         event.stopPropagation();
-        this.selectWorld(world.world_id);
+        this.selectWorld(world.slug);
       });
 
       this._world_options_element.appendChild(button);
@@ -202,11 +208,9 @@ class InGame extends AppWindow {
   public async run() {
 
     if (this._selected_world_button_element) {
-      console.log(this._worldData);
-
       // Get saved World (or default)
       const savedWorld = localStorage.getItem('selectedWorld');
-      const initialWorld = savedWorld || this._worldData[0]?.world_id;
+      const initialWorld = savedWorld || this._worldData[0]?.slug;
       const savedQuestNumber = localStorage.getItem('selectedQuestNumber');
 
       if (initialWorld) {
@@ -253,12 +257,12 @@ class InGame extends AppWindow {
   }
 
   private loadWorld(worldId: string, startingQuestNumber: number = 0) {
-    this._selected_world = this._worldData.find(world => world.world_id === worldId);
+    this._selected_world = this._worldData.find(world => world.slug === worldId);
 
     this._selected_world_text_element.textContent = this._selected_world.display_name;
-    this._selected_world_img_element.src = `./img/world/${this._selected_world.world_id}.png`;
+    this._selected_world_img_element.src = `./img/world/${this._selected_world.slug}.png`;
 
-    this._story_quests = this._selected_world.story_quests;
+    this._story_quests = this.getQuestsForWorld(this._selected_world.slug) //this._selected_world.story_quests;
     this._world_quest_progress.max = this._story_quests.length - 1;
     this._selected_quest_number = startingQuestNumber;
     this._total_quest_number_element.textContent = `${this._story_quests.length -1}`;

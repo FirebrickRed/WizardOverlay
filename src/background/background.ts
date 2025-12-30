@@ -5,82 +5,48 @@ import {
 } from '@overwolf/overwolf-api-ts';
 
 import { kWindowNames, kGameClassIds } from "../consts";
-import world_quest_data from "../worldQuestData.json";
+import { supabase } from '../config/supabase';
+import { Quest, World } from '../types';
 
 import RunningGameInfo = overwolf.games.RunningGameInfo;
-import AppLaunchTriggeredEvent = overwolf.extensions.AppLaunchTriggeredEvent;
-import { World, WorldQuestData } from '../types';
 
-// The background controller holds all of the app's background logic - hence its name. it has
-// many possible use cases, for example sharing data between windows, or, in our case,
-// managing which window is currently presented to the user. To that end, it holds a dictionary
-// of the windows available in the app.
-// Our background controller implements the Singleton design pattern, since only one
-// instance of it should exist.
 class BackgroundController {
   private static _instance: BackgroundController;
   private _windows: Record<string, OWWindow> = {};
   private _gameListener: OWGameListener;
 
-  private _worldData: World[];
+  private _worldsCache: World[];
+  private _questsCache: Quest[];
 
   private constructor() {
-    // Populating the background controller's window dictionary
-    // this._windows[kWindowNames.desktop] = new OWWindow(kWindowNames.desktop);
+    // Create window reference
     this._windows[kWindowNames.inGame] = new OWWindow(kWindowNames.inGame);
 
-    this._worldData = world_quest_data.worlds;
-    localStorage.setItem('worldData', JSON.stringify(this._worldData));
-    console.log("world Data: ", this._worldData);
-
-    // When a a supported game game is started or is ended, toggle the app's windows
+    // Listen for game start/stop
     this._gameListener = new OWGameListener({
       onGameStarted: this.toggleWindows.bind(this),
       onGameEnded: this.toggleWindows.bind(this)
     });
 
-    overwolf.extensions.onAppLaunchTriggered.addListener(
-      e => this.onAppLaunchTriggered(e)
-    );
+    this.loadGameData();
+
+    // overwolf.extensions.onAppLaunchTriggered.addListener(
+    //   e => this.onAppLaunchTriggered(e)
+    // );
   };
 
-  // Implementing the Singleton design pattern
   public static instance(): BackgroundController {
     if (!BackgroundController._instance) {
       BackgroundController._instance = new BackgroundController();
     }
-
     return BackgroundController._instance;
   }
 
-  // When running the app, start listening to games' status and decide which window should
-  // be launched first, based on whether a supported game is currently running
   public async run() {
     this._gameListener.start();
 
-    const currWindowName = (await this.isSupportedGameRunning())
-      ? kWindowNames.inGame
-      : kWindowNames.inGame;
-
-    this._windows[currWindowName].restore();
-  }
-
-  private async onAppLaunchTriggered(e: AppLaunchTriggeredEvent) {
-    console.log('onAppLaunchTriggered():', e);
-    console.log('Origin:', e?.origin);  // <-- Add this
-
-  if (!e || e.origin.includes('gamelaunchevent')) {
-    console.log('Returning early because of origin');  // <-- Add this
-    return;
-  }
-
-    if (await this.isSupportedGameRunning()) {
-      // this._windows[kWindowNames.desktop].close();
+    if (await this.isSupportedGameRunning())
       this._windows[kWindowNames.inGame].restore();
-    } else {
-      // this._windows[kWindowNames.desktop].restore();
-      this._windows[kWindowNames.inGame].close();
-    }
   }
 
   private toggleWindows(info: RunningGameInfo) {
@@ -107,6 +73,58 @@ class BackgroundController {
   // Identify whether the RunningGameInfo object we have references a supported game
   private isSupportedGame(info: RunningGameInfo) {
     return kGameClassIds.includes(info.classId);
+  }
+
+  // Supabase Data Loading
+  private async loadGameData() {
+    try {
+      const cachedVersion = localStorage.getItem('overlay_data_version');
+
+      const { data: currentVersion } = await supabase
+        .from('app_metadata')
+        .select('value')
+        .eq('key', 'overlay_data_version')
+        .single();
+
+      if (cachedVersion !== currentVersion?.value) {
+        console.log('Fetching fresh data from Supabase...');
+        await this.refreshGameData(currentVersion.value);
+      } else {
+        console.log('Using cached data');
+        this.loadFromCache();
+      }
+    } catch (error) {
+      console.log('Error loading game data: ', error);
+    }
+  }
+
+  private async refreshGameData(version: string) {
+    try {
+      const [worldsResult, questsResult] = await Promise.all([
+        supabase.from('worlds').select('*'),
+        supabase.from('story_quests').select('*')
+      ]);
+
+      console.log('results: ', {worldsResult, questsResult})
+
+      this._worldsCache = worldsResult.data || [];
+      this._questsCache = questsResult.data || [];
+
+      localStorage.setItem('worlds', JSON.stringify(this._worldsCache));
+      localStorage.setItem('quests', JSON.stringify(this._questsCache));
+      localStorage.setItem('overlay_data_version', version);
+
+      console.log(`Cached ${this._worldsCache.length} worlds and ${this._questsCache} quests`);
+    } catch (error) {
+      console.error('Error refreshing game data: ', error);
+    }
+  }
+
+  private loadFromCache() {
+    this._worldsCache = JSON.parse(localStorage.getItem('worlds') || '[]');
+    this._questsCache = JSON.parse(localStorage.getItem('quests') || '[]');
+
+    console.log(`Loaded ${this._worldsCache.length} worlds and ${this._questsCache.length} quests`);
   }
 }
 

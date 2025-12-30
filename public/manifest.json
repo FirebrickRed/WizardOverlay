@@ -4,7 +4,7 @@
   "meta": {
     "name": "Wizard Overlay",
     "author": "Jessica Kirby",
-    "version": "0.0.1",
+    "version": "1.0.1",
     "minimum-overwolf-version": "0.160.0",
     "description": "(WIP) Currently going to display quest line progression type stuff.",
     "dock_button_title": "Wizard Overlay",

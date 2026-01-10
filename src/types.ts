@@ -15,8 +15,19 @@ export interface World {
   slug: string;
   display_name: string;
   story_order: number;
+  quests: Quest[];
 }
 
 export interface WorldQuestData {
   worlds: World[];
+}
+
+export enum Schools {
+  Balance = "BALANCE",
+  Death = "DEATH",
+  Fire = "FIRE",
+  Ice = "ICE",
+  Life = "LIFE",
+  Myth = "MYTH",
+  Storm = "STORM"
 }

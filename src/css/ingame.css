@@ -235,6 +235,44 @@ button:hover {
   overflow-wrap: anywhere;
 }
 
+#character_selector_container {
+}
+
+#create_character_button {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 4px;
+  border-radius: 50%;
+  height: 24px;
+  width: 24px;
+  cursor: pointer;
+  background: radial-gradient(circle at 30% 20%, var(--gold-light) 0%, var(--gold-main) 45%, var(--gold-dark) 80%);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.7), 0 0 0 1px #2d1b0b;
+  border: none;
+}
+
+#create_character_button::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 20%, var(--red-light) 0%, var(--red-main) 45%, var(--red-dark) 90%);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2), inset 0 -1px 5px rgba(0, 0, 0, 0.7);
+  border: 1px #2d1b0b solid;
+}
+
+#create_character_button svg {
+  z-index: 1;
+  stroke: var(--arrow-gold);
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.8));
+  position: relative;
+  left: -4px;
+  width: 20px;
+  height: 20px;
+  top: 1px;
+}
+
 /* base circular button */
 .spell-btn {
   position: relative;

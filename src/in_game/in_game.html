@@ -15,6 +15,30 @@
         </button>
         <div id="world_options"></div>
       </div>
+      <div id="character_selector_container">
+        <button id="create_character_button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+        <div id="create_character_form">
+          <select name="school" id="school_select">
+            <option value="balance">Balance</option>
+            <option value="death">Death</option>
+            <option value="fire">Fire</option>
+            <option value="ice">Ice</option>
+            <option value="life">Life</option>
+            <option value="myth">Myth</option>
+            <option value="storm">Storm</option>
+          </select>
+          <input id="level_input" placeholder="Level" type="number" minlength="1" maxlength="3"></input>
+          <div>
+            <button id="cancel_button">Cancel</button>
+            <button id="create_button">Create</button>
+          </div>
+        </div>
+      </div>
       <button id="closeButton" class="window-control window-control-close" >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"/>

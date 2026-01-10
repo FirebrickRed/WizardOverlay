@@ -45,6 +45,22 @@
         "background_optimization": true,
         "is_background_page": true
       },
+      "desktop": {
+        "file": "in_game.html",
+        "desktop_only": true,
+        "native_window": true,
+        "resizeable": true,
+        "transparent": true,
+        "override_on_update": true,
+        "size": {
+          "width": 1212,
+          "height": 699
+        },
+        "min_size": {
+          "width": 1212,
+          "height": 699
+        }
+      },
       "in_game": {
         "file": "in_game.html",
         "in_game_only": true,
@@ -74,7 +90,7 @@
         "event_data": {
           "game_ids": [4592]
         },
-        "start_minimized": false
+        "start_minimized": true
       }
     ],
     "developer": {

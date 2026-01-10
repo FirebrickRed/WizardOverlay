@@ -8,16 +8,29 @@ import { Quest, World } from "../types";
 class InGame extends AppWindow {
   private static _instance: InGame;
   private _worldData: World[];
-  private _questData: Quest[];
 
   private _quest_overlay_element: HTMLElement;
 
+  // World changing Elements
   private _selected_world_img_element: HTMLImageElement;
   private _selected_world_text_element: HTMLElement;
   private _selected_world_button_element: HTMLButtonElement;
   private _world_options_element: HTMLElement;
   private _world_selector_container: HTMLElement;
 
+  // Character Elements
+  private _create_character_button: HTMLButtonElement;
+  private _create_character_form: HTMLElement;
+  private _create_character_selected_school: HTMLElement;
+  private _create_character_schools: HTMLElement;
+  private _create_character_level_input: HTMLInputElement;
+  private _create_character_cancel_button: HTMLButtonElement;
+  private _create_character_create_button: HTMLButtonElement;
+
+  private _selected_school;
+  private _isSchoolSelectorOpen: boolean = false;
+
+  // Progress bar Elements
   private _world_quest_progress: HTMLProgressElement;
   private _previous_quest_button: HTMLButtonElement;
   private _next_quest_button: HTMLButtonElement;
@@ -41,16 +54,26 @@ class InGame extends AppWindow {
     super(kWindowNames.inGame);
     
     this._worldData = JSON.parse(localStorage.getItem('worlds') || '[]');
-    this._questData = JSON.parse(localStorage.getItem('quests') || '[]');
 
     this._quest_overlay_element = document.getElementById('quest_overlay');
 
+    // World Changing Elements
     this._selected_world_img_element = document.getElementById('selected_world_img') as HTMLImageElement;
     this._selected_world_text_element = document.getElementById('selected_world_text');
     this._selected_world_button_element = document.getElementById('selected_world') as HTMLButtonElement;
     this._world_options_element = document.getElementById('world_options')
     this._world_selector_container = document.getElementById('world_selector_container');
     
+    // Character Elements
+    this._create_character_button = document.getElementById('create_character_button') as HTMLButtonElement;
+    this._create_character_cancel_button = document.getElementById('cancel_button') as HTMLButtonElement;
+    this._create_character_create_button = document.getElementById('create_button') as HTMLButtonElement;
+    this._create_character_form = document.getElementById('create_character_form');
+    this._create_character_level_input = document.getElementById('level_input') as HTMLInputElement;
+    this._create_character_schools = document.getElementById('');
+    this._create_character_selected_school = document.getElementById('');
+
+    // Progress Bar Elements
     this._world_quest_progress = document.getElementById('world_quest_progress') as HTMLProgressElement;
     this._previous_quest_button = document.getElementById('previous_quest_button') as HTMLButtonElement;
     this._next_quest_button = document.getElementById('next_quest_button') as HTMLButtonElement;
@@ -59,10 +82,6 @@ class InGame extends AppWindow {
     this._total_quest_number_element = document.getElementById('total_quest_number');
 
     this._nav_element = document.getElementById('nav');
-  }
-
-  private getQuestsForWorld(worldSlug: string) {
-    return this._questData.filter(q => q.world_slug === worldSlug);
   }
 
   public static instance() {
@@ -196,13 +215,34 @@ class InGame extends AppWindow {
     }
   }
 
-  /**
-   * Selects a world and updates the UI
-   */
+  // Selects a world and updates the UI
   private selectWorld(worldId: string): void {
     this.closeWorldSelector();
     this.loadWorld(worldId, 0);
     localStorage.setItem('selectedWorld', worldId);
+  }
+
+  // character creation stuff
+  private openSchoolSelector() {
+    this._isSchoolSelectorOpen = true;
+
+  }
+
+  private closeSchoolSelector() {
+    this._isSchoolSelectorOpen = false;
+  }
+
+  private toggleSchoolSelector() {
+    if (this._isSchoolSelectorOpen) {
+      this.closeSchoolSelector();
+    } else {
+      this.openSchoolSelector();
+    }
+  }
+
+  private selectSchool(school: string): void {
+    this.closeSchoolSelector();
+    this._selected_school = school;
   }
 
   public async run() {
@@ -262,7 +302,7 @@ class InGame extends AppWindow {
     this._selected_world_text_element.textContent = this._selected_world.display_name;
     this._selected_world_img_element.src = `./img/world/${this._selected_world.slug}.png`;
 
-    this._story_quests = this.getQuestsForWorld(this._selected_world.slug) //this._selected_world.story_quests;
+    this._story_quests = this._selected_world.quests;
     this._world_quest_progress.max = this._story_quests.length - 1;
     this._selected_quest_number = startingQuestNumber;
     this._total_quest_number_element.textContent = `${this._story_quests.length -1}`;

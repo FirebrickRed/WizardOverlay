@@ -78,7 +78,7 @@ class BackgroundController {
   // Supabase Data Loading
   private async loadGameData() {
     try {
-      const cachedVersion = localStorage.getItem('overlay_data_version');
+      const cachedVersion = Number(localStorage.getItem('overlay_data_version'));
 
       const { data: currentVersion } = await supabase
         .from('app_metadata')
@@ -100,21 +100,42 @@ class BackgroundController {
 
   private async refreshGameData(version: string) {
     try {
-      const [worldsResult, questsResult] = await Promise.all([
-        supabase.from('worlds').select('*'),
-        supabase.from('story_quests').select('*')
-      ]);
+      const { data: worldsResult, error: worldsError } = await supabase.from('worlds').select('*').order('story_order', { ascending: true });
 
-      console.log('results: ', {worldsResult, questsResult})
+      if (worldsError) {
+        console.error('Error fetching worlds:', worldsError);
+        return;
+      }
+      
+      const worldsWithQuests = await Promise.all(
+        worldsResult.map(async (world) => {
+          const { data: quests, error: questsError } = await supabase
+            .from('story_quests')
+            .select('*')
+            .eq('world_slug', world.slug)
+            .order('story_order', { ascending: true });
 
-      this._worldsCache = worldsResult.data || [];
-      this._questsCache = questsResult.data || [];
+          if (questsError) {
+            console.error(`Error fetching quests for ${world.slug}:`, questsError);
+            return {
+              ...world,
+              quests: []
+            };
+          }
+
+          return {
+            ...world,
+            quests: quests || []
+          }
+        })
+      );
+
+      this._worldsCache = worldsWithQuests;
 
       localStorage.setItem('worlds', JSON.stringify(this._worldsCache));
-      localStorage.setItem('quests', JSON.stringify(this._questsCache));
       localStorage.setItem('overlay_data_version', version);
 
-      console.log(`Cached ${this._worldsCache.length} worlds and ${this._questsCache} quests`);
+      console.log(`Cached ${this._worldsCache.length} worlds and ${this._questsCache.length} quests`);
     } catch (error) {
       console.error('Error refreshing game data: ', error);
     }

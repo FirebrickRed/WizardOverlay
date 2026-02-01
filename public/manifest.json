@@ -3,7 +3,7 @@
   "type": "WebApp",
   "meta": {
     "name": "Wizard Overlay",
-    "author": "Jessica Kirby",
+    "author": "FireBrick",
     "version": "1.0.1",
     "minimum-overwolf-version": "0.160.0",
     "description": "(WIP) Currently going to display quest line progression type stuff.",
@@ -46,19 +46,19 @@
         "is_background_page": true
       },
       "desktop": {
-        "file": "in_game.html",
+        "file": "desktop.html",
         "desktop_only": true,
         "native_window": true,
         "resizeable": true,
         "transparent": true,
         "override_on_update": true,
         "size": {
-          "width": 1212,
-          "height": 699
+          "width": 950,
+          "height": 300
         },
         "min_size": {
-          "width": 1212,
-          "height": 699
+          "width": 950,
+          "height": 300
         }
       },
       "in_game": {

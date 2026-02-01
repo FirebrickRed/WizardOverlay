@@ -168,8 +168,8 @@ class InGame extends AppWindow {
     this._world_selector_container.classList.add('open');
     this._selected_world_button_element.classList.add('active');
     this._quest_overlay_element.classList.add('open');
-    this._nav_element.classList.add('open');
-    this._quest_name_element.classList.add('open');
+    this._nav_element.classList.add('hide');
+    this._quest_name_element.classList.add('hide');
 
     const options = this._world_options_element.querySelectorAll('.world_option') as NodeListOf<HTMLElement>;
     const positions = this.calculateArcPositions(options.length);
@@ -194,8 +194,8 @@ class InGame extends AppWindow {
     this._world_selector_container.classList.remove('open');
     this._selected_world_button_element.classList.remove('active');
     this._quest_overlay_element.classList.remove('open');
-    this._nav_element.classList.remove('open');
-    this._quest_name_element.classList.remove('open');
+    this._nav_element.classList.remove('hide');
+    this._quest_name_element.classList.remove('hide');
     
     const options = this._world_options_element.querySelectorAll('.world_option') as NodeListOf<HTMLElement>;
     options.forEach((option: HTMLElement) => {
@@ -225,6 +225,10 @@ class InGame extends AppWindow {
   // character creation stuff
   private openSchoolSelector() {
     this._isSchoolSelectorOpen = true;
+    this._create_character_form.classList.add('open');
+    this._world_selector_container.classList.add('hide');
+    this._quest_name_element.classList.add('hide');
+    this._nav_element.classList.add('hide');
 
   }
 

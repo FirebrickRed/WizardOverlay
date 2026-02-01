@@ -21,6 +21,7 @@ class BackgroundController {
   private constructor() {
     // Create window reference
     this._windows[kWindowNames.inGame] = new OWWindow(kWindowNames.inGame);
+    this._windows[kWindowNames.desktop] = new OWWindow(kWindowNames.desktop);
 
     // Listen for game start/stop
     this._gameListener = new OWGameListener({
@@ -45,8 +46,9 @@ class BackgroundController {
   public async run() {
     this._gameListener.start();
 
-    if (await this.isSupportedGameRunning())
-      this._windows[kWindowNames.inGame].restore();
+    const currWindowName = (await this.isSupportedGameRunning()) ? kWindowNames.inGame : kWindowNames.desktop;
+
+    this._windows[currWindowName].restore();
   }
 
   private toggleWindows(info: RunningGameInfo) {
@@ -55,17 +57,16 @@ class BackgroundController {
     }
 
     if (info.isRunning) {
-      // this._windows[kWindowNames.desktop].close();
+      this._windows[kWindowNames.desktop].close();
       this._windows[kWindowNames.inGame].restore();
     } else {
-      // this._windows[kWindowNames.desktop].restore();
+      this._windows[kWindowNames.desktop].restore();
       this._windows[kWindowNames.inGame].close();
     }
   }
 
   private async isSupportedGameRunning(): Promise<boolean> {
     const info = await OWGames.getRunningGameInfo();
-    console.log("in isSupportedGameRunning: ", info);
 
     return info && info.isRunning && this.isSupportedGame(info);
   }
@@ -100,13 +101,16 @@ class BackgroundController {
 
   private async refreshGameData(version: string) {
     try {
-      const { data: worldsResult, error: worldsError } = await supabase.from('worlds').select('*').order('story_order', { ascending: true });
+      const { data: worldsResult, error: worldsError } = await supabase.from('worlds')
+        .select('*')
+        .order('story_order', { ascending: true });
 
       if (worldsError) {
         console.error('Error fetching worlds:', worldsError);
         return;
       }
       
+      let questLength = 0;
       const worldsWithQuests = await Promise.all(
         worldsResult.map(async (world) => {
           const { data: quests, error: questsError } = await supabase
@@ -115,6 +119,7 @@ class BackgroundController {
             .eq('world_slug', world.slug)
             .order('story_order', { ascending: true });
 
+          questLength += quests.length;
           if (questsError) {
             console.error(`Error fetching quests for ${world.slug}:`, questsError);
             return {
@@ -135,7 +140,7 @@ class BackgroundController {
       localStorage.setItem('worlds', JSON.stringify(this._worldsCache));
       localStorage.setItem('overlay_data_version', version);
 
-      console.log(`Cached ${this._worldsCache.length} worlds and ${this._questsCache.length} quests`);
+      console.log(`Cached ${this._worldsCache.length} worlds and ${questLength} quests`);
     } catch (error) {
       console.error('Error refreshing game data: ', error);
     }
@@ -143,9 +148,8 @@ class BackgroundController {
 
   private loadFromCache() {
     this._worldsCache = JSON.parse(localStorage.getItem('worlds') || '[]');
-    this._questsCache = JSON.parse(localStorage.getItem('quests') || '[]');
 
-    console.log(`Loaded ${this._worldsCache.length} worlds and ${this._questsCache.length} quests`);
+    console.log(`Loaded ${this._worldsCache.length} worlds`);
   }
 }
 

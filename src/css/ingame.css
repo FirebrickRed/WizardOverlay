@@ -60,7 +60,7 @@ h1 {
   transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-#quest_name.open {
+#quest_name.hide {
   opacity: 0;
 }
 
@@ -95,10 +95,12 @@ progress {
   position: relative;
   opacity: 100%;
   transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: unset;
 }
 
-#nav.open {
+#nav.hide {
   opacity: 0;
+  pointer-events: none;
 }
 
 /* ===== World Selector Container ===== */
@@ -108,7 +110,13 @@ progress {
   left: 8px;
   width: var(--world-selected-size);
   height: var(--world-selected-size);
-  /* transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), height 0.35s cubic-bezier(0.4, 0, 0.2, 1); */
+  pointer-events: unset;
+  opacity: 100%;
+}
+
+#world_selector_container.hide {
+  opacity: 0;
+  pointer-events: none;
 }
 
 #world_selector_container.open {
@@ -353,7 +361,7 @@ button:hover {
   right: 1px;
 }
 
-#closeButton {
+#minimizeButton {
   position: absolute;
   left: 205px;
   top: 2px;
@@ -366,7 +374,7 @@ button:hover {
   border: none;
 }
 
-#closeButton::before {
+#minimizeButton::before {
   content: "";
   position: absolute;
   inset: 1px;
@@ -382,7 +390,7 @@ button:hover {
   border: 1px #2d1b0b solid;
 }
 
-#closeButton svg {
+#minimizeButton svg {
   z-index: 1;
   stroke: var(--arrow-gold);
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.8));

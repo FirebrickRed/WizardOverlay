@@ -10,14 +10,19 @@ export class AppWindow {
     this.mainWindow = new OWWindow('background');
     this.currWindow = new OWWindow(windowName);
 
-    const quest_overlay_element = document.getElementById('quest_overlay');
-    this.setDrag(quest_overlay_element);
+    const header_element = document.getElementById('header');
+    this.setDrag(header_element);
     
     const closeButton = document.getElementById('closeButton');
     if (closeButton) {
       closeButton.addEventListener('click', () => {
-        this.currWindow.minimize();
-      })
+        this.mainWindow.close();
+      });
+    }
+
+    const minimizeButton = document.getElementById('minimizeButton');
+    if (minimizeButton) {
+      this.currWindow.minimize();
     }
   }
 
